@@ -24,6 +24,13 @@ export async function getOrdersWithMeta(params: OrderListParams = {}): Promise<{
   return { orders, total, totalPages };
 }
 
+export async function getOrdersByCustomer(customerId: number): Promise<WCOrder[]> {
+  const response = await wcFetchRaw('/orders', {
+    params: { customer: customerId, per_page: 20, orderby: 'date', order: 'desc' },
+  });
+  return (await response.json()) as WCOrder[];
+}
+
 export async function updateOrderStatus(id: number, status: WCOrderStatus): Promise<WCOrder> {
   return wcFetch<WCOrder>(`/orders/${id}`, { method: 'PUT', body: { status } });
 }

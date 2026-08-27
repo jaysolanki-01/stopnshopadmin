@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect } from 'react';
-import type { WCCustomer } from '@/types/woocommerce';
+import { useEffect, useState, useCallback } from 'react';
+import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
+import type { WCCustomer, WCOrder } from '@/types/woocommerce';
 import { CURRENCY } from '@/lib/config';
 
 function formatDate(dateStr: string) {
@@ -9,6 +10,16 @@ function formatDate(dateStr: string) {
     day: 'numeric',
     month: 'short',
     year: 'numeric',
+  });
+}
+
+function formatDateTime(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('en-IN', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   });
 }
 
@@ -40,6 +51,29 @@ interface CustomerDetailModalProps {
 }
 
 export function CustomerDetailModal({ customer, onClose }: CustomerDetailModalProps) {
+  const [orders, setOrders] = useState<WCOrder[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
+
+  const fetchOrders = useCallback(async () => {
+    if (customer.id === 0) {
+      setOrdersLoading(false);
+      return;
+    }
+    try {
+      const res = await fetch(`/api/customers/${customer.id}/orders`);
+      const json = await res.json();
+      if (json.success) setOrders(json.data);
+    } catch {
+      // silently fail
+    } finally {
+      setOrdersLoading(false);
+    }
+  }, [customer.id]);
+
+  useEffect(() => {
+    fetchOrders();
+  }, [fetchOrders]);
+
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -102,6 +136,81 @@ export function CustomerDetailModal({ customer, onClose }: CustomerDetailModalPr
               </p>
               <p className="text-xs text-neutral-500 mt-0.5">Paying</p>
             </div>
+          </div>
+
+          {/* Order & Payment History */}
+          <div>
+            <h3 className="text-xs font-semibold text-neutral-500 uppercase tracking-wide mb-3">
+              Order & Payment History
+            </h3>
+            {ordersLoading ? (
+              <div className="space-y-2">
+                {[1, 2].map((i) => (
+                  <div key={i} className="bg-neutral-50 rounded-xl p-4 animate-pulse">
+                    <div className="h-4 bg-neutral-200 rounded w-24 mb-2" />
+                    <div className="h-3 bg-neutral-100 rounded w-40" />
+                  </div>
+                ))}
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="bg-neutral-50 rounded-xl p-4 text-center text-sm text-neutral-400">
+                No orders yet
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {orders.map((order) => (
+                  <div key={order.id} className="bg-neutral-50 rounded-xl p-4">
+                    {/* Order header */}
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-neutral-900">#{order.number}</span>
+                        <OrderStatusBadge status={order.status} />
+                      </div>
+                      <span className="text-sm font-semibold text-neutral-900">{formatCurrency(order.total)}</span>
+                    </div>
+
+                    {/* Order details */}
+                    <div className="space-y-1.5 text-xs">
+                      <div className="flex items-center justify-between text-neutral-500">
+                        <span>Date</span>
+                        <span className="text-neutral-700">{formatDateTime(order.date_created)}</span>
+                      </div>
+
+                      {/* Payment Method */}
+                      <div className="flex items-center justify-between text-neutral-500">
+                        <span>Payment</span>
+                        <span className="text-neutral-700">{order.payment_method_title || order.payment_method || '—'}</span>
+                      </div>
+
+                      {/* Razorpay / Transaction ID */}
+                      {order.transaction_id && (
+                        <div className="flex items-center justify-between text-neutral-500">
+                          <span>Transaction ID</span>
+                          <span className="text-neutral-700 font-mono text-[11px]">{order.transaction_id}</span>
+                        </div>
+                      )}
+
+                      {/* Payment date */}
+                      {order.date_paid && (
+                        <div className="flex items-center justify-between text-neutral-500">
+                          <span>Paid on</span>
+                          <span className="text-neutral-700">{formatDateTime(order.date_paid)}</span>
+                        </div>
+                      )}
+
+                      {/* Items summary */}
+                      <div className="flex items-start justify-between text-neutral-500 pt-1 border-t border-neutral-200 mt-1.5">
+                        <span>Items</span>
+                        <span className="text-neutral-700 text-right">
+                          {order.line_items.slice(0, 2).map((item) => item.name).join(', ')}
+                          {order.line_items.length > 2 && ` +${order.line_items.length - 2} more`}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
 
           {/* Account Info */}
