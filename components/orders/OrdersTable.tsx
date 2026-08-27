@@ -57,7 +57,7 @@ export function OrdersTable() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [total, setTotal] = useState(0);
-  const [perPage, setPerPage] = useState(PAGINATION.defaultPerPage);
+  const [perPage, setPerPage] = useState<number>(PAGINATION.defaultPerPage);
   const [status, setStatus] = useState('');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');

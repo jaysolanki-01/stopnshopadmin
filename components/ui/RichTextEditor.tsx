@@ -42,7 +42,7 @@ export function RichTextEditor({
   // Sync external value changes (e.g. form reset) without fighting the editor
   useEffect(() => {
     if (editor && !editor.isFocused && value !== editor.getHTML()) {
-      editor.commands.setContent(value, false);
+      editor.commands.setContent(value, { emitUpdate: false });
     }
   }, [value, editor]);
 

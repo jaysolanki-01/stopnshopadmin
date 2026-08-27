@@ -26,7 +26,7 @@ export async function uploadMedia(
 
   const response = await wpFetchRaw('/media', {
     method: 'POST',
-    rawBody: buffer,
+    rawBody: new Uint8Array(buffer),
     contentType: mimeType,
     filename,
   });

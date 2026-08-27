@@ -74,8 +74,8 @@ export async function verifyToken(token: string): Promise<boolean> {
     const valid = await globalThis.crypto.subtle.verify(
       ALGORITHM,
       key,
-      fromBase64Url(sigStr),
-      new TextEncoder().encode(payload),
+      fromBase64Url(sigStr) as BufferSource,
+      new TextEncoder().encode(payload) as BufferSource,
     );
     if (!valid) return false;
 
