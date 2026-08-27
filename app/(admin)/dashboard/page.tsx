@@ -2,6 +2,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { getProductsWithMeta } from '@/lib/woocommerce/products';
 import { getOrdersWithMeta } from '@/lib/woocommerce/orders';
+import { getCustomersWithMeta } from '@/lib/woocommerce/customers';
 import { StatusBadge } from '@/components/products/StatusBadge';
 import { OrderStatusBadge } from '@/components/orders/OrderStatusBadge';
 import { CURRENCY } from '@/lib/config';
@@ -53,6 +54,15 @@ async function getRecentProducts() {
   }
 }
 
+async function getCustomerStats() {
+  try {
+    const result = await getCustomersWithMeta({ per_page: 1 });
+    return { total: result.total, error: null };
+  } catch {
+    return { total: 0, error: 'Could not load customer stats.' };
+  }
+}
+
 async function getRecentOrders() {
   try {
     const { orders } = await getOrdersWithMeta({ per_page: 5 });
@@ -84,16 +94,13 @@ function getInitials(order: WCOrder) {
 }
 
 export default async function DashboardPage() {
-  const [productStats, orderStats, recentProducts, recentOrders] = await Promise.all([
+  const [productStats, orderStats, customerStats, recentProducts, recentOrders] = await Promise.all([
     getProductStats(),
     getOrderStats(),
+    getCustomerStats(),
     getRecentProducts(),
     getRecentOrders(),
   ]);
-
-  const totalRevenue = recentOrders
-    .filter((o) => o.status === 'completed' || o.status === 'processing')
-    .reduce((sum, o) => sum + parseFloat(o.total || '0'), 0);
 
   return (
     <div className="p-6 lg:p-8 max-w-6xl mx-auto animate-fade-in">
@@ -138,6 +145,13 @@ export default async function DashboardPage() {
           <StatCard label="Total Products" value={productStats.total} href="/products" />
           <StatCard label="Published" value={productStats.published} href="/products?status=publish" accent="emerald" />
           <StatCard label="Drafts" value={productStats.drafts} href="/products?status=draft" accent="amber" />
+        </div>
+      )}
+
+      {/* Customer Stats */}
+      {!customerStats.error && (
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+          <StatCard label="Total Customers" value={customerStats.total} href="/customers" accent="blue" />
         </div>
       )}
 

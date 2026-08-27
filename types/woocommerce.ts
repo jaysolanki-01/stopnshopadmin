@@ -189,6 +189,34 @@ export interface OrderListParams {
   status?: string;
 }
 
+// ─── Customers ──────────────────────────────────────────────────────────────
+
+export interface WCCustomer {
+  id: number;
+  email: string;
+  first_name: string;
+  last_name: string;
+  username: string;
+  role: string;
+  billing: WCOrderBilling;
+  shipping: WCOrderShipping;
+  is_paying_customer: boolean;
+  avatar_url: string;
+  date_created: string;
+  date_modified: string;
+  orders_count: number;
+  total_spent: string;
+}
+
+export interface CustomerListParams {
+  page?: number;
+  per_page?: number;
+  search?: string;
+  role?: string;
+  orderby?: string;
+  order?: string;
+}
+
 // Client-side image upload state (lives in the browser, never sent to server as-is)
 export interface UploadedImage {
   localId: string;          // temporary browser-side ID
