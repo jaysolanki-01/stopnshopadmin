@@ -54,7 +54,7 @@ export function LoginForm() {
         {/* Logo */}
         <div className="flex justify-center mb-8">
           <Image
-            src="/logo.png"
+            src="/logo.jpg"
             alt={APP_NAME}
             width={220}
             height={60}

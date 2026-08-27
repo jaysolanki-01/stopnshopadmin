@@ -68,7 +68,7 @@ export function Sidebar({ wpAdminUrl }: SidebarProps) {
       <div className="px-4 py-4 border-b border-neutral-100">
         <Link href="/dashboard" className="block">
           <Image
-            src="/logo.png"
+            src="/logo.jpg"
             alt={APP_NAME}
             width={180}
             height={50}
@@ -152,7 +152,7 @@ export function Sidebar({ wpAdminUrl }: SidebarProps) {
         </button>
         <div className="ml-3">
           <Image
-            src="/logo.png"
+            src="/logo.jpg"
             alt={APP_NAME}
             width={140}
             height={38}
