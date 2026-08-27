@@ -22,6 +22,12 @@ function buildAuthHeader(): string {
   return `Basic ${Buffer.from(`${key}:${secret}`).toString('base64')}`;
 }
 
+function buildWpAuthHeader(): string {
+  const username = requireEnv('WP_USERNAME');
+  const appPassword = requireEnv('WP_APPLICATION_PASSWORD');
+  return `Basic ${Buffer.from(`${username}:${appPassword}`).toString('base64')}`;
+}
+
 export interface FetchOptions {
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE';
   body?: unknown;
@@ -91,14 +97,37 @@ export async function wcFetchRaw(path: string, options: FetchOptions = {}): Prom
 }
 
 // WordPress REST API (wp/v2) — used for Media Library uploads
+// Uses WordPress Application Password (WC API keys don't work with wp/v2)
 export async function wpFetch<T>(path: string, options: FetchOptions = {}): Promise<T> {
+  const { method = 'GET', body } = options;
   const url = buildUrl(getWpBase(), path, options.params);
-  const response = await doFetch(url, options);
+
+  const response = await fetch(url, {
+    method,
+    headers: {
+      Authorization: buildWpAuthHeader(),
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+    cache: 'no-store',
+  });
+
+  if (!response.ok) {
+    let errorBody: WCApiError['body'] = { code: 'UNKNOWN', message: response.statusText };
+    try {
+      errorBody = await response.json();
+    } catch {
+      // keep default
+    }
+    throw { status: response.status, body: errorBody } as WCApiError;
+  }
+
   return response.json() as Promise<T>;
 }
 
 // WordPress REST API raw response — used for binary media uploads
-// WordPress accepts: Content-Type = mime type, Content-Disposition = attachment; filename="..."
+// Uses WordPress Application Password (WC API keys don't work with wp/v2)
 export async function wpFetchRaw(
   path: string,
   options: {
@@ -113,7 +142,7 @@ export async function wpFetchRaw(
   const url = buildUrl(getWpBase(), path, options.params);
 
   const headers: Record<string, string> = {
-    Authorization: buildAuthHeader(),
+    Authorization: buildWpAuthHeader(),
     'Content-Type': contentType,
     Accept: 'application/json',
   };
