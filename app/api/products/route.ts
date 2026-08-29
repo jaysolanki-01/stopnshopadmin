@@ -31,6 +31,11 @@ const createSchema = z.object({
       })
     )
     .optional(),
+  attributes: z.array(z.object({
+    id: z.number().int().positive(),
+    visible: z.boolean().optional(),
+    options: z.array(z.string()),
+  })).optional(),
   manage_stock: z.boolean().optional(),
   stock_quantity: z.number().int().min(0).nullable().optional(),
   stock_status: z.enum(['instock', 'outofstock', 'onbackorder']).optional(),

@@ -7,6 +7,7 @@ import { FormField } from '@/components/ui/FormField';
 import { FormSection } from '@/components/ui/FormSection';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { CategorySelector } from '@/components/products/CategorySelector';
+import { AttributeSelector, type SelectedAttribute } from '@/components/products/AttributeSelector';
 import { ProductImageUploader } from '@/components/products/ProductImageUploader';
 import { useProductImages } from '@/hooks/useProductImages';
 import { CURRENCY } from '@/lib/config';
@@ -26,6 +27,7 @@ interface FormState {
   backorders: 'no' | 'notify' | 'yes';
   lowStockAmount: string;
   soldIndividually: boolean;
+  attributes: SelectedAttribute[];
   shortDescription: string;
   description: string;
 }
@@ -83,6 +85,12 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
     backorders: product.backorders ?? 'no',
     lowStockAmount: product.low_stock_amount != null ? String(product.low_stock_amount) : '',
     soldIndividually: product.sold_individually ?? false,
+    attributes: (product.attributes ?? []).map((a) => ({
+      id: a.id,
+      name: a.name,
+      visible: a.visible,
+      options: a.options,
+    })),
     shortDescription: product.short_description || '',
     description: product.description || '',
   });
@@ -176,6 +184,11 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
           backorders: form.manageStock ? form.backorders : undefined,
           low_stock_amount: form.manageStock && form.lowStockAmount ? parseInt(form.lowStockAmount, 10) : null,
           sold_individually: form.soldIndividually,
+          attributes: form.attributes.filter((a) => a.options.length > 0).map((a) => ({
+            id: a.id,
+            visible: a.visible,
+            options: a.options,
+          })),
           short_description: form.shortDescription || '',
           description: form.description || '',
           images: imageIds,
@@ -398,6 +411,15 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
           </label>
           <span className="text-sm text-neutral-700">Sold individually (limit one per order)</span>
         </div>
+      </FormSection>
+
+      {/* ── Attributes ── */}
+      <FormSection title="Attributes" description="Select product attributes like size, color, etc.">
+        <AttributeSelector
+          value={form.attributes}
+          onChange={(attrs) => setField('attributes', attrs)}
+          disabled={isDisabled}
+        />
       </FormSection>
 
       {/* ── Description ── */}

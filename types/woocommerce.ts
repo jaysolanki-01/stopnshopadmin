@@ -46,8 +46,19 @@ export interface WCProduct {
   backorders: 'no' | 'notify' | 'yes';
   low_stock_amount: number | null;
   sold_individually: boolean;
+  attributes: WCProductAttribute[];
   date_created: string;
   date_modified: string;
+}
+
+export interface WCProductAttribute {
+  id: number;
+  name: string;
+  slug: string;
+  position: number;
+  visible: boolean;
+  variation: boolean;
+  options: string[];
 }
 
 export interface WCCreateProductInput {
@@ -66,6 +77,11 @@ export interface WCCreateProductInput {
   backorders?: 'no' | 'notify' | 'yes';
   low_stock_amount?: number | null;
   sold_individually?: boolean;
+  attributes?: Array<{
+    id: number;
+    visible?: boolean;
+    options: string[];
+  }>;
 }
 
 export type WCUpdateProductInput = Partial<WCCreateProductInput>;

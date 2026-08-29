@@ -6,6 +6,7 @@ import { FormField } from '@/components/ui/FormField';
 import { FormSection } from '@/components/ui/FormSection';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { CategorySelector } from '@/components/products/CategorySelector';
+import { AttributeSelector, type SelectedAttribute } from '@/components/products/AttributeSelector';
 import { ProductImageUploader } from '@/components/products/ProductImageUploader';
 import { useProductImages } from '@/hooks/useProductImages';
 import { CURRENCY } from '@/lib/config';
@@ -25,6 +26,7 @@ interface FormState {
   backorders: 'no' | 'notify' | 'yes';
   lowStockAmount: string;
   soldIndividually: boolean;
+  attributes: SelectedAttribute[];
   shortDescription: string;
   description: string;
 }
@@ -48,6 +50,7 @@ const INITIAL_FORM: FormState = {
   backorders: 'no',
   lowStockAmount: '',
   soldIndividually: false,
+  attributes: [],
   shortDescription: '',
   description: '',
 };
@@ -216,6 +219,13 @@ export function ProductForm({ categories }: ProductFormProps) {
           backorders: form.manageStock ? form.backorders : undefined,
           low_stock_amount: form.manageStock && form.lowStockAmount ? parseInt(form.lowStockAmount, 10) : null,
           sold_individually: form.soldIndividually,
+          attributes: form.attributes.length > 0
+            ? form.attributes.filter((a) => a.options.length > 0).map((a) => ({
+                id: a.id,
+                visible: a.visible,
+                options: a.options,
+              }))
+            : undefined,
           short_description: form.shortDescription || undefined,
           description: form.description || undefined,
           images: imageIds.length > 0 ? imageIds : undefined,
@@ -438,6 +448,15 @@ export function ProductForm({ categories }: ProductFormProps) {
           </label>
           <span className="text-sm text-neutral-700">Sold individually (limit one per order)</span>
         </div>
+      </FormSection>
+
+      {/* ── Attributes ── */}
+      <FormSection title="Attributes" description="Select product attributes like size, color, etc.">
+        <AttributeSelector
+          value={form.attributes}
+          onChange={(attrs) => setField('attributes', attrs)}
+          disabled={isDisabled}
+        />
       </FormSection>
 
       {/* ── Description ── */}
