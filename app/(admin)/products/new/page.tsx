@@ -16,12 +16,12 @@ export default async function NewProductPage() {
   }
 
   return (
-    <div className="p-6 lg:p-8 max-w-3xl mx-auto animate-fade-in">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl mx-auto animate-fade-in">
       {/* Header */}
-      <div className="mb-6">
+      <div className="mb-4 sm:mb-6">
         <Link
           href="/products"
-          className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900 transition mb-4"
+          className="inline-flex items-center gap-1.5 text-sm text-neutral-500 hover:text-neutral-900 transition mb-3 sm:mb-4"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
             <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
@@ -29,8 +29,8 @@ export default async function NewProductPage() {
           Back to Products
         </Link>
 
-        <h1 className="text-xl font-semibold text-neutral-900">Add Product</h1>
-        <p className="text-sm text-neutral-500 mt-0.5">Create a new product in your WooCommerce store</p>
+        <h1 className="text-lg sm:text-xl font-semibold text-neutral-900">Add Product</h1>
+        <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">Create a new product in your store</p>
       </div>
 
       {/* Category load warning */}

@@ -88,7 +88,7 @@ export function CustomersTable() {
   return (
     <div className="space-y-4">
       {/* Search */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         <form onSubmit={handleSearch} className="flex-1 relative">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
@@ -218,31 +218,33 @@ export function CustomersTable() {
 
       {/* Pagination */}
       {!loading && totalPages > 0 && (
-        <div className="flex items-center justify-between text-sm">
-          <p className="text-neutral-500">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3 text-sm">
+          <p className="text-neutral-500 text-xs">
             {total > 0
               ? `Showing ${(page - 1) * perPage + 1}–${Math.min(page * perPage, total)} of ${total.toLocaleString()} customers`
               : 'No customers'}
           </p>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page <= 1}
-              className="px-3 py-1.5 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
-            >
-              ← Previous
-            </button>
-            <span className="text-neutral-500 text-xs px-2">
-              {page} / {totalPages}
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page >= totalPages}
-              className="px-3 py-1.5 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition"
-            >
-              Next →
-            </button>
-          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="px-3 py-1.5 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition text-sm"
+              >
+                ← Prev
+              </button>
+              <span className="text-neutral-500 text-xs px-2">
+                {page} / {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="px-3 py-1.5 border border-neutral-200 rounded-lg text-neutral-600 hover:bg-neutral-50 disabled:opacity-40 disabled:cursor-not-allowed transition text-sm"
+              >
+                Next →
+              </button>
+            </div>
+          )}
         </div>
       )}
 

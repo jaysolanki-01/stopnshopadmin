@@ -190,21 +190,22 @@ export default async function ProductsPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
   return (
-    <div className="p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4 sm:mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-neutral-900">Products</h1>
-          <p className="text-sm text-neutral-500 mt-0.5">Manage your WooCommerce product catalogue</p>
+          <h1 className="text-lg sm:text-xl font-semibold text-neutral-900">Products</h1>
+          <p className="text-xs sm:text-sm text-neutral-500 mt-0.5">Manage your product catalogue</p>
         </div>
         <Link
           href="/products/new"
-          className="flex items-center gap-1.5 px-4 py-2 bg-neutral-900 text-white text-sm font-medium rounded-lg hover:bg-neutral-800 transition shadow-sm"
+          className="flex items-center gap-1.5 px-3 sm:px-4 py-2 bg-neutral-900 text-white text-sm font-medium rounded-lg hover:bg-neutral-800 transition shadow-sm"
         >
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
             <line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" />
           </svg>
-          Add Product
+          <span className="hidden sm:inline">Add Product</span>
+          <span className="sm:hidden">Add</span>
         </Link>
       </div>
 

@@ -26,7 +26,7 @@ export function Pagination({ page, totalPages, total, perPage }: PaginationProps
   const to = Math.min(page * perPage, total);
 
   return (
-    <div className="flex items-center justify-between mt-4 px-1">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mt-4 px-1">
       <p className="text-xs text-neutral-500">
         {total === 0
           ? 'No products'

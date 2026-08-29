@@ -90,14 +90,14 @@ export function CustomerDetailModal({ customer, onClose }: CustomerDetailModalPr
   const shippingAddress = formatAddress(customer.shipping);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center pt-[5vh] px-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-start justify-center sm:pt-[5vh] sm:px-4" onClick={onClose}>
       <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" />
       <div
-        className="relative bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto"
+        className="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-lg max-h-[92vh] sm:max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-neutral-100 px-6 py-4 rounded-t-2xl flex items-center gap-4 z-10">
+        <div className="sticky top-0 bg-white border-b border-neutral-100 px-4 sm:px-6 py-4 rounded-t-2xl flex items-center gap-3 sm:gap-4 z-10">
           <div className="w-12 h-12 rounded-full bg-neutral-100 border border-neutral-200 flex items-center justify-center flex-shrink-0">
             <span className="text-base font-semibold text-neutral-600">{getInitials(customer)}</span>
           </div>
@@ -115,26 +115,26 @@ export function CustomerDetailModal({ customer, onClose }: CustomerDetailModalPr
           </button>
         </div>
 
-        <div className="px-6 py-5 space-y-5">
+        <div className="px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5">
           {/* Stats Cards */}
-          <div className="grid grid-cols-3 gap-3">
-            <div className="bg-neutral-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-semibold text-neutral-900">{customer.orders_count}</p>
-              <p className="text-xs text-neutral-500 mt-0.5">Orders</p>
+          <div className="grid grid-cols-3 gap-2 sm:gap-3">
+            <div className="bg-neutral-50 rounded-xl p-2.5 sm:p-3 text-center">
+              <p className="text-lg sm:text-2xl font-semibold text-neutral-900">{customer.orders_count}</p>
+              <p className="text-[10px] sm:text-xs text-neutral-500 mt-0.5">Orders</p>
             </div>
-            <div className="bg-neutral-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-semibold text-emerald-600">{formatCurrency(customer.total_spent)}</p>
-              <p className="text-xs text-neutral-500 mt-0.5">Total Spent</p>
+            <div className="bg-neutral-50 rounded-xl p-2.5 sm:p-3 text-center">
+              <p className="text-lg sm:text-2xl font-semibold text-emerald-600 truncate">{formatCurrency(customer.total_spent)}</p>
+              <p className="text-[10px] sm:text-xs text-neutral-500 mt-0.5">Total Spent</p>
             </div>
-            <div className="bg-neutral-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-semibold text-neutral-900">
+            <div className="bg-neutral-50 rounded-xl p-2.5 sm:p-3 text-center">
+              <p className="text-lg sm:text-2xl font-semibold text-neutral-900">
                 {customer.is_paying_customer ? (
                   <span className="text-emerald-600">Yes</span>
                 ) : (
                   <span className="text-neutral-400">No</span>
                 )}
               </p>
-              <p className="text-xs text-neutral-500 mt-0.5">Paying</p>
+              <p className="text-[10px] sm:text-xs text-neutral-500 mt-0.5">Paying</p>
             </div>
           </div>
 

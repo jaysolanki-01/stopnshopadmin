@@ -121,7 +121,7 @@ export function OrdersTable() {
   return (
     <div className="space-y-4">
       {/* Filters */}
-      <div className="flex flex-col sm:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
         <form onSubmit={handleSearch} className="flex-1 relative">
           <svg
             className="absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none"
@@ -149,25 +149,27 @@ export function OrdersTable() {
           )}
         </form>
 
-        <select
-          value={status}
-          onChange={(e) => handleStatusChange(e.target.value)}
-          className="px-3 py-2.5 text-sm bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition"
-        >
-          {ORDER_STATUSES.map((s) => (
-            <option key={s.value} value={s.value}>{s.label}</option>
-          ))}
-        </select>
+        <div className="flex gap-2 sm:contents">
+          <select
+            value={status}
+            onChange={(e) => handleStatusChange(e.target.value)}
+            className="flex-1 sm:flex-none px-3 py-2.5 text-sm bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition"
+          >
+            {ORDER_STATUSES.map((s) => (
+              <option key={s.value} value={s.value}>{s.label}</option>
+            ))}
+          </select>
 
-        <select
-          value={perPage}
-          onChange={(e) => handlePerPageChange(Number(e.target.value))}
-          className="px-3 py-2.5 text-sm bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition"
-        >
-          {PAGINATION.options.map((n) => (
-            <option key={n} value={n}>{n} per page</option>
-          ))}
-        </select>
+          <select
+            value={perPage}
+            onChange={(e) => handlePerPageChange(Number(e.target.value))}
+            className="flex-1 sm:flex-none px-3 py-2.5 text-sm bg-white border border-neutral-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition"
+          >
+            {PAGINATION.options.map((n) => (
+              <option key={n} value={n}>{n} per page</option>
+            ))}
+          </select>
+        </div>
       </div>
 
       {/* Error */}
@@ -294,7 +296,7 @@ export function OrdersTable() {
 
       {/* Pagination */}
       {!loading && totalPages > 1 && (
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
           <p className="text-xs text-neutral-500">
             Showing {(page - 1) * perPage + 1}–{Math.min(page * perPage, total)} of {total.toLocaleString()} orders
           </p>
@@ -307,10 +309,11 @@ export function OrdersTable() {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
                 <polyline points="15 18 9 12 15 6" />
               </svg>
-              Previous
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">Prev</span>
             </button>
             <div className="flex items-center px-3 text-xs text-neutral-500">
-              Page {page} of {totalPages}
+              {page} / {totalPages}
             </div>
             <button
               onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
@@ -328,7 +331,7 @@ export function OrdersTable() {
 
       {/* Total count when not paginated */}
       {!loading && totalPages <= 1 && total > 0 && (
-        <p className="text-xs text-neutral-500">{total.toLocaleString()} order{total !== 1 ? 's' : ''}</p>
+        <p className="text-xs text-neutral-500 text-center sm:text-left">{total.toLocaleString()} order{total !== 1 ? 's' : ''}</p>
       )}
 
       {/* Detail modal */}

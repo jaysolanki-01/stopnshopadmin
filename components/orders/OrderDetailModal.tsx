@@ -103,12 +103,12 @@ export function OrderDetailModal({ order, onClose, onStatusUpdated }: OrderDetai
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center p-4 pt-[5vh] sm:pt-[8vh]">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-start justify-center sm:p-4 sm:pt-[8vh]">
       <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={onClose} />
 
-      <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[85vh] flex flex-col animate-fade-in">
+      <div className="relative bg-white rounded-t-2xl sm:rounded-2xl shadow-2xl w-full max-w-2xl max-h-[92vh] sm:max-h-[85vh] flex flex-col animate-fade-in">
         {/* ── Header ── */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 flex-shrink-0">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-4 border-b border-neutral-100 flex-shrink-0">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 rounded-lg bg-neutral-900 flex items-center justify-center">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -132,7 +132,7 @@ export function OrderDetailModal({ order, onClose, onStatusUpdated }: OrderDetai
         </div>
 
         {/* ── Scrollable content ── */}
-        <div className="overflow-y-auto flex-1 px-6 py-5 space-y-5">
+        <div className="overflow-y-auto flex-1 px-4 sm:px-6 py-4 sm:py-5 space-y-4 sm:space-y-5">
           {/* Status update */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-3 bg-neutral-50 rounded-xl px-4 py-3.5">
             <div className="flex items-center gap-2 flex-1">
@@ -176,7 +176,7 @@ export function OrderDetailModal({ order, onClose, onStatusUpdated }: OrderDetai
             </div>
           )}
           {/* Summary cards */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
             <SummaryCard label="Subtotal" value={formatPrice(order.subtotal)} />
             <SummaryCard
               label="Shipping"
@@ -221,8 +221,8 @@ export function OrderDetailModal({ order, onClose, onStatusUpdated }: OrderDetai
 
           {/* ── Items ── */}
           <Section title={`Items (${order.line_items.length})`}>
-            <div className="border border-neutral-200 rounded-xl overflow-hidden">
-              <table className="w-full text-sm">
+            <div className="border border-neutral-200 rounded-xl overflow-hidden overflow-x-auto">
+              <table className="w-full text-sm min-w-[400px]">
                 <thead>
                   <tr className="bg-neutral-50 border-b border-neutral-100">
                     <th className="text-left text-xs font-medium text-neutral-500 px-4 py-2.5" colSpan={2}>Product</th>
@@ -317,9 +317,9 @@ function Section({ title, children }: { title: string; children: React.ReactNode
 
 function SummaryCard({ label, value, highlight }: { label: string; value: string; highlight?: boolean }) {
   return (
-    <div className={`rounded-xl px-4 py-3 ${highlight ? 'bg-neutral-900 text-white' : 'bg-neutral-50'}`}>
-      <p className={`text-xs ${highlight ? 'text-neutral-400' : 'text-neutral-500'}`}>{label}</p>
-      <p className={`text-sm font-semibold mt-0.5 ${highlight ? 'text-white' : 'text-neutral-900'}`}>{value}</p>
+    <div className={`rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 ${highlight ? 'bg-neutral-900 text-white' : 'bg-neutral-50'}`}>
+      <p className={`text-[10px] sm:text-xs ${highlight ? 'text-neutral-400' : 'text-neutral-500'}`}>{label}</p>
+      <p className={`text-xs sm:text-sm font-semibold mt-0.5 truncate ${highlight ? 'text-white' : 'text-neutral-900'}`}>{value}</p>
     </div>
   );
 }
