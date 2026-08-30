@@ -64,7 +64,7 @@ export interface WCProductVariation {
   manage_stock: boolean;
   stock_quantity: number | null;
   stock_status: 'instock' | 'outofstock' | 'onbackorder';
-  attributes: Array<{ id: number; name: string; option: string }>;
+  attributes: Array<{ id: number; name?: string; option: string }>;
 }
 
 export interface WCProductAttribute {
