@@ -10,6 +10,12 @@ import { ProductTableSkeleton } from '@/components/ui/Skeleton';
 import { CURRENCY, PAGINATION } from '@/lib/config';
 import type { WCProduct } from '@/types/woocommerce';
 
+function formatDate(iso: string): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
 interface PageProps {
   searchParams: Promise<Record<string, string | undefined>>;
 }
@@ -82,6 +88,7 @@ async function ProductList({ searchParams }: PageProps) {
                   <th className="text-left text-xs font-medium text-neutral-500 px-4 py-3 hidden lg:table-cell">Category</th>
                   <th className="text-left text-xs font-medium text-neutral-500 px-4 py-3 hidden sm:table-cell">Price</th>
                   <th className="text-left text-xs font-medium text-neutral-500 px-4 py-3">Status</th>
+                  <th className="text-left text-xs font-medium text-neutral-500 px-4 py-3 hidden lg:table-cell">Created</th>
                   <th className="text-right text-xs font-medium text-neutral-500 px-4 py-3">Actions</th>
                 </tr>
               </thead>
@@ -176,6 +183,13 @@ function ProductRow({ product }: { product: WCProduct }) {
       {/* Status */}
       <td className="px-4 py-3">
         <StatusBadge status={product.status} />
+      </td>
+
+      {/* Created */}
+      <td className="px-4 py-3 hidden lg:table-cell">
+        <span className="text-xs text-neutral-500">
+          {formatDate(product.date_created)}
+        </span>
       </td>
 
       {/* Actions */}

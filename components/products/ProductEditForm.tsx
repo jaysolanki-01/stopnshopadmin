@@ -51,6 +51,34 @@ function inputCls(hasError = false) {
   ].join(' ');
 }
 
+// ─── Date helpers ────────────────────────────────────────────────────────────
+
+function formatDateTime(iso: string): string {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  return d.toLocaleString('en-IN', {
+    day: 'numeric', month: 'short', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
+  });
+}
+
+function timeAgo(iso: string): string {
+  if (!iso) return '';
+  const now = Date.now();
+  const then = new Date(iso).getTime();
+  const diff = now - then;
+  const mins = Math.floor(diff / 60000);
+  if (mins < 1) return 'just now';
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.floor(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  const months = Math.floor(days / 30);
+  if (months < 12) return `${months}mo ago`;
+  return `${Math.floor(months / 12)}y ago`;
+}
+
 // ─── Convert WCImage[] → UploadedImage[] for pre-filling the uploader ─────────
 
 function wcImagesToUploaded(product: WCProduct): UploadedImage[] {
@@ -495,6 +523,50 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
           onReorder={reorderImages}
           onRetry={retryImage}
         />
+      </FormSection>
+
+      {/* ── Product History ── */}
+      <FormSection title="Product History">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="flex items-start gap-3 p-3 bg-neutral-50 rounded-lg">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#059669" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Created</p>
+              <p className="text-sm font-medium text-neutral-900 mt-0.5">
+                {formatDateTime(product.date_created)}
+              </p>
+              <p className="text-xs text-neutral-400 mt-0.5">{timeAgo(product.date_created)}</p>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3 p-3 bg-neutral-50 rounded-lg">
+            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#2563eb" strokeWidth="2" strokeLinecap="round">
+                <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+            </div>
+            <div>
+              <p className="text-xs font-medium text-neutral-500 uppercase tracking-wide">Last Modified</p>
+              <p className="text-sm font-medium text-neutral-900 mt-0.5">
+                {formatDateTime(product.date_modified)}
+              </p>
+              <p className="text-xs text-neutral-400 mt-0.5">{timeAgo(product.date_modified)}</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-4 text-xs text-neutral-400 mt-2 pt-2 border-t border-neutral-100">
+          <span>Product ID: <span className="font-mono text-neutral-500">{product.id}</span></span>
+          <span>Slug: <span className="font-mono text-neutral-500">{product.slug}</span></span>
+          {product.type && (
+            <span>Type: <span className="font-mono text-neutral-500">{product.type}</span></span>
+          )}
+        </div>
       </FormSection>
 
       {/* ── Actions ── */}
