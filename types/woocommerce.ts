@@ -24,12 +24,14 @@ export interface WCProductCategory {
 }
 
 export type WCProductStatus = 'publish' | 'draft' | 'pending' | 'private' | 'trash';
+export type WCProductType = 'simple' | 'variable' | 'grouped' | 'external';
 
 export interface WCProduct {
   id: number;
   name: string;
   slug: string;
   permalink: string;
+  type: WCProductType;
   status: WCProductStatus;
   sku: string;
   price: string;
@@ -47,8 +49,22 @@ export interface WCProduct {
   low_stock_amount: number | null;
   sold_individually: boolean;
   attributes: WCProductAttribute[];
+  variations: number[];
   date_created: string;
   date_modified: string;
+}
+
+export interface WCProductVariation {
+  id: number;
+  sku: string;
+  regular_price: string;
+  sale_price: string;
+  price: string;
+  status: 'publish' | 'private';
+  manage_stock: boolean;
+  stock_quantity: number | null;
+  stock_status: 'instock' | 'outofstock' | 'onbackorder';
+  attributes: Array<{ id: number; name: string; option: string }>;
 }
 
 export interface WCProductAttribute {
@@ -63,6 +79,7 @@ export interface WCProductAttribute {
 
 export interface WCCreateProductInput {
   name: string;
+  type?: 'simple' | 'variable';
   status: 'publish' | 'draft';
   sku?: string;
   regular_price?: string;
@@ -80,6 +97,7 @@ export interface WCCreateProductInput {
   attributes?: Array<{
     id: number;
     visible?: boolean;
+    variation?: boolean;
     options: string[];
   }>;
 }

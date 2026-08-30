@@ -7,6 +7,7 @@ import { requireAuth } from '@/lib/auth/api-guard';
 
 const updateSchema = z.object({
   name: z.string().min(1).max(200).trim().optional(),
+  type: z.enum(['simple', 'variable']).optional(),
   status: z.enum(['publish', 'draft']).optional(),
   sku: z.string().max(100).optional(),
   regular_price: z.string().regex(/^\d*\.?\d*$/).optional(),
@@ -26,6 +27,7 @@ const updateSchema = z.object({
   attributes: z.array(z.object({
     id: z.number().int().positive(),
     visible: z.boolean().optional(),
+    variation: z.boolean().optional(),
     options: z.array(z.string()),
   })).optional(),
   manage_stock: z.boolean().optional(),

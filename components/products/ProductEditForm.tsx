@@ -8,6 +8,7 @@ import { FormSection } from '@/components/ui/FormSection';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { CategorySelector } from '@/components/products/CategorySelector';
 import { AttributeSelector, type SelectedAttribute } from '@/components/products/AttributeSelector';
+import { VariationManager } from '@/components/products/VariationManager';
 import { ProductImageUploader } from '@/components/products/ProductImageUploader';
 import { useProductImages } from '@/hooks/useProductImages';
 import { CURRENCY } from '@/lib/config';
@@ -17,6 +18,7 @@ import type { WCCategory, WCProduct, UploadedImage } from '@/types/woocommerce';
 
 interface FormState {
   name: string;
+  productType: 'simple' | 'variable';
   sku: string;
   categoryId: number | null;
   regularPrice: string;
@@ -75,6 +77,7 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
 
   const [form, setForm] = useState<FormState>({
     name: product.name,
+    productType: (product.type === 'variable' ? 'variable' : 'simple'),
     sku: product.sku || '',
     categoryId: product.categories[0]?.id ?? null,
     regularPrice: product.regular_price || '',
@@ -89,6 +92,7 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
       id: a.id,
       name: a.name,
       visible: a.visible,
+      variation: a.variation ?? false,
       options: a.options,
     })),
     shortDescription: product.short_description || '',
@@ -173,11 +177,12 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name.trim(),
+          type: form.productType,
           status,
           sku: form.sku.trim() || '',
           categories: form.categoryId ? [{ id: form.categoryId }] : [],
-          regular_price: form.regularPrice || '',
-          sale_price: form.salePrice || '',
+          regular_price: form.productType === 'simple' ? (form.regularPrice || '') : undefined,
+          sale_price: form.productType === 'simple' ? (form.salePrice || '') : undefined,
           manage_stock: form.manageStock,
           stock_quantity: form.manageStock && form.stockQuantity ? parseInt(form.stockQuantity, 10) : null,
           stock_status: form.manageStock ? undefined : form.stockStatus,
@@ -187,6 +192,7 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
           attributes: form.attributes.filter((a) => a.options.length > 0).map((a) => ({
             id: a.id,
             visible: a.visible,
+            variation: form.productType === 'variable' ? a.variation : undefined,
             options: a.options,
           })),
           short_description: form.shortDescription || '',
@@ -260,6 +266,26 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
           />
         </FormField>
 
+        <FormField label="Product Type" hint="Variable products have per-size/color pricing.">
+          <div className="flex gap-2">
+            {(['simple', 'variable'] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setField('productType', t)}
+                disabled={isDisabled}
+                className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg border transition ${
+                  form.productType === t
+                    ? 'bg-neutral-900 text-white border-neutral-900'
+                    : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400'
+                }`}
+              >
+                {t === 'simple' ? 'Simple' : 'Variable'}
+              </button>
+            ))}
+          </div>
+        </FormField>
+
         <FormField label="SKU" hint="Stock Keeping Unit — leave empty if you don't use SKUs.">
           <input
             type="text"
@@ -285,46 +311,48 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
         </FormField>
       </FormSection>
 
-      {/* ── Pricing ── */}
-      <FormSection title="Pricing">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField label="Regular Price" error={errors.regularPrice}>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400 pointer-events-none select-none">
-                {CURRENCY.symbol}
-              </span>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.regularPrice}
-                onChange={(e) => setField('regularPrice', e.target.value)}
-                placeholder="0.00"
-                disabled={isDisabled}
-                className={`${inputCls(!!errors.regularPrice)} pl-7`}
-              />
-            </div>
-          </FormField>
+      {/* ── Pricing (simple products only) ── */}
+      {form.productType === 'simple' && (
+        <FormSection title="Pricing">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Regular Price" error={errors.regularPrice}>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400 pointer-events-none select-none">
+                  {CURRENCY.symbol}
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.regularPrice}
+                  onChange={(e) => setField('regularPrice', e.target.value)}
+                  placeholder="0.00"
+                  disabled={isDisabled}
+                  className={`${inputCls(!!errors.regularPrice)} pl-7`}
+                />
+              </div>
+            </FormField>
 
-          <FormField label="Sale Price" hint="Leave empty if there's no sale." error={errors.salePrice}>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400 pointer-events-none select-none">
-                {CURRENCY.symbol}
-              </span>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.salePrice}
-                onChange={(e) => setField('salePrice', e.target.value)}
-                placeholder="0.00"
-                disabled={isDisabled}
-                className={`${inputCls(!!errors.salePrice)} pl-7`}
-              />
-            </div>
-          </FormField>
-        </div>
-      </FormSection>
+            <FormField label="Sale Price" hint="Leave empty if there's no sale." error={errors.salePrice}>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400 pointer-events-none select-none">
+                  {CURRENCY.symbol}
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.salePrice}
+                  onChange={(e) => setField('salePrice', e.target.value)}
+                  placeholder="0.00"
+                  disabled={isDisabled}
+                  className={`${inputCls(!!errors.salePrice)} pl-7`}
+                />
+              </div>
+            </FormField>
+          </div>
+        </FormSection>
+      )}
 
       {/* ── Inventory ── */}
       <FormSection title="Inventory">
@@ -419,8 +447,20 @@ export function ProductEditForm({ product, categories }: ProductEditFormProps) {
           value={form.attributes}
           onChange={(attrs) => setField('attributes', attrs)}
           disabled={isDisabled}
+          showVariationToggle={form.productType === 'variable'}
         />
       </FormSection>
+
+      {/* ── Variations (variable products only) ── */}
+      {form.productType === 'variable' && (
+        <FormSection title="Variations" description="Set individual pricing for each size/option combination.">
+          <VariationManager
+            productId={product.id}
+            attributes={form.attributes}
+            disabled={isDisabled}
+          />
+        </FormSection>
+      )}
 
       {/* ── Description ── */}
       <FormSection title="Description">

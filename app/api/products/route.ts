@@ -15,6 +15,7 @@ const querySchema = z.object({
 
 const createSchema = z.object({
   name: z.string().min(1, 'Product name is required').max(200).trim(),
+  type: z.enum(['simple', 'variable']).optional(),
   status: z.enum(['publish', 'draft']).default('draft'),
   sku: z.string().max(100).optional(),
   regular_price: z.string().regex(/^\d*\.?\d*$/, 'Invalid price').optional(),
@@ -34,6 +35,7 @@ const createSchema = z.object({
   attributes: z.array(z.object({
     id: z.number().int().positive(),
     visible: z.boolean().optional(),
+    variation: z.boolean().optional(),
     options: z.array(z.string()),
   })).optional(),
   manage_stock: z.boolean().optional(),

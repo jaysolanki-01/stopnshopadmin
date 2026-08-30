@@ -19,6 +19,7 @@ export interface SelectedAttribute {
   id: number;
   name: string;
   visible: boolean;
+  variation: boolean;
   options: string[];
 }
 
@@ -26,9 +27,10 @@ interface AttributeSelectorProps {
   value: SelectedAttribute[];
   onChange: (attrs: SelectedAttribute[]) => void;
   disabled?: boolean;
+  showVariationToggle?: boolean;
 }
 
-export function AttributeSelector({ value, onChange, disabled }: AttributeSelectorProps) {
+export function AttributeSelector({ value, onChange, disabled, showVariationToggle }: AttributeSelectorProps) {
   const [attributes, setAttributes] = useState<Attribute[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -47,7 +49,7 @@ export function AttributeSelector({ value, onChange, disabled }: AttributeSelect
     if (existing) {
       onChange(value.filter((a) => a.id !== attr.id));
     } else {
-      onChange([...value, { id: attr.id, name: attr.name, visible: true, options: [] }]);
+      onChange([...value, { id: attr.id, name: attr.name, visible: true, variation: false, options: [] }]);
     }
   };
 
@@ -67,6 +69,12 @@ export function AttributeSelector({ value, onChange, disabled }: AttributeSelect
   const toggleVisible = (attrId: number) => {
     onChange(
       value.map((a) => (a.id === attrId ? { ...a, visible: !a.visible } : a))
+    );
+  };
+
+  const toggleVariation = (attrId: number) => {
+    onChange(
+      value.map((a) => (a.id === attrId ? { ...a, variation: !a.variation } : a))
     );
   };
 
@@ -137,8 +145,8 @@ export function AttributeSelector({ value, onChange, disabled }: AttributeSelect
             {isActive && (
               <div className="border-t border-neutral-100 px-4 py-3 bg-neutral-50">
                 {/* Controls */}
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center justify-between mb-2 flex-wrap gap-y-1">
+                  <div className="flex items-center gap-3 flex-wrap">
                     <label className="flex items-center gap-1.5 cursor-pointer">
                       <input
                         type="checkbox"
@@ -149,6 +157,18 @@ export function AttributeSelector({ value, onChange, disabled }: AttributeSelect
                       />
                       <span className="text-xs text-neutral-500">Visible on product page</span>
                     </label>
+                    {showVariationToggle && (
+                      <label className="flex items-center gap-1.5 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={selected.variation}
+                          onChange={() => toggleVariation(attr.id)}
+                          disabled={disabled}
+                          className="w-3.5 h-3.5 rounded border-neutral-300 text-neutral-900 focus:ring-neutral-900"
+                        />
+                        <span className="text-xs text-neutral-500">Used for variations</span>
+                      </label>
+                    )}
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                     <button

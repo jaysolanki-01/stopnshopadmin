@@ -1,6 +1,7 @@
 import { wcFetch, wcFetchRaw } from './client';
 import type {
   WCProduct,
+  WCProductVariation,
   WCCreateProductInput,
   WCUpdateProductInput,
   ProductListParams,
@@ -52,5 +53,44 @@ export async function deleteProduct(id: number, force = false): Promise<WCProduc
   return wcFetch<WCProduct>(`/products/${id}`, {
     method: 'DELETE',
     params: { force: String(force) },
+  });
+}
+
+// ─── Variations ────────────────────────────────────────────────────────────────
+
+export async function getVariations(productId: number): Promise<WCProductVariation[]> {
+  return wcFetch<WCProductVariation[]>(`/products/${productId}/variations`, {
+    params: { per_page: '100' },
+  });
+}
+
+export async function createVariation(
+  productId: number,
+  data: Partial<WCProductVariation>,
+): Promise<WCProductVariation> {
+  return wcFetch<WCProductVariation>(`/products/${productId}/variations`, {
+    method: 'POST',
+    body: data,
+  });
+}
+
+export async function updateVariation(
+  productId: number,
+  variationId: number,
+  data: Partial<WCProductVariation>,
+): Promise<WCProductVariation> {
+  return wcFetch<WCProductVariation>(`/products/${productId}/variations/${variationId}`, {
+    method: 'PUT',
+    body: data,
+  });
+}
+
+export async function deleteVariation(
+  productId: number,
+  variationId: number,
+): Promise<WCProductVariation> {
+  return wcFetch<WCProductVariation>(`/products/${productId}/variations/${variationId}`, {
+    method: 'DELETE',
+    params: { force: 'true' },
   });
 }

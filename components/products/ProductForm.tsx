@@ -7,6 +7,7 @@ import { FormSection } from '@/components/ui/FormSection';
 import { RichTextEditor } from '@/components/ui/RichTextEditor';
 import { CategorySelector } from '@/components/products/CategorySelector';
 import { AttributeSelector, type SelectedAttribute } from '@/components/products/AttributeSelector';
+import { VariationManager } from '@/components/products/VariationManager';
 import { ProductImageUploader } from '@/components/products/ProductImageUploader';
 import { useProductImages } from '@/hooks/useProductImages';
 import { CURRENCY } from '@/lib/config';
@@ -16,6 +17,7 @@ import type { WCCategory, WCProduct } from '@/types/woocommerce';
 
 interface FormState {
   name: string;
+  productType: 'simple' | 'variable';
   sku: string;
   categoryId: number | null;
   regularPrice: string;
@@ -40,6 +42,7 @@ interface FormErrors {
 
 const INITIAL_FORM: FormState = {
   name: '',
+  productType: 'simple',
   sku: '',
   categoryId: null,
   regularPrice: '',
@@ -208,11 +211,12 @@ export function ProductForm({ categories }: ProductFormProps) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           name: form.name.trim(),
+          type: form.productType,
           status,
           sku: form.sku.trim() || undefined,
           categories: form.categoryId ? [{ id: form.categoryId }] : undefined,
-          regular_price: form.regularPrice || undefined,
-          sale_price: form.salePrice || undefined,
+          regular_price: form.productType === 'simple' ? (form.regularPrice || undefined) : undefined,
+          sale_price: form.productType === 'simple' ? (form.salePrice || undefined) : undefined,
           manage_stock: form.manageStock,
           stock_quantity: form.manageStock && form.stockQuantity ? parseInt(form.stockQuantity, 10) : null,
           stock_status: form.manageStock ? undefined : form.stockStatus,
@@ -223,6 +227,7 @@ export function ProductForm({ categories }: ProductFormProps) {
             ? form.attributes.filter((a) => a.options.length > 0).map((a) => ({
                 id: a.id,
                 visible: a.visible,
+                variation: form.productType === 'variable' ? a.variation : undefined,
                 options: a.options,
               }))
             : undefined,
@@ -289,6 +294,26 @@ export function ProductForm({ categories }: ProductFormProps) {
           />
         </FormField>
 
+        <FormField label="Product Type" hint="Variable products have per-size/color pricing.">
+          <div className="flex gap-2">
+            {(['simple', 'variable'] as const).map((t) => (
+              <button
+                key={t}
+                type="button"
+                onClick={() => setField('productType', t)}
+                disabled={isDisabled}
+                className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg border transition ${
+                  form.productType === t
+                    ? 'bg-neutral-900 text-white border-neutral-900'
+                    : 'bg-white text-neutral-600 border-neutral-200 hover:border-neutral-400'
+                }`}
+              >
+                {t === 'simple' ? 'Simple' : 'Variable'}
+              </button>
+            ))}
+          </div>
+        </FormField>
+
         <FormField
           label="SKU"
           hint="Stock Keeping Unit — leave empty if you don't use SKUs."
@@ -318,50 +343,52 @@ export function ProductForm({ categories }: ProductFormProps) {
         </FormField>
       </FormSection>
 
-      {/* ── Pricing ── */}
-      <FormSection title="Pricing">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <FormField label="Regular Price" error={errors.regularPrice}>
-            <div className="relative">
-              <span className="absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400 pointer-events-none select-none">
-                {CURRENCY.symbol}
-              </span>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.regularPrice}
-                onChange={(e) => setField('regularPrice', e.target.value)}
-                placeholder="0.00"
-                disabled={isDisabled}
-                className={`${inputCls(!!errors.regularPrice)} pl-7`}
-              />
-            </div>
-          </FormField>
+      {/* ── Pricing (simple products only) ── */}
+      {form.productType === 'simple' && (
+        <FormSection title="Pricing">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <FormField label="Regular Price" error={errors.regularPrice}>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400 pointer-events-none select-none">
+                  {CURRENCY.symbol}
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.regularPrice}
+                  onChange={(e) => setField('regularPrice', e.target.value)}
+                  placeholder="0.00"
+                  disabled={isDisabled}
+                  className={`${inputCls(!!errors.regularPrice)} pl-7`}
+                />
+              </div>
+            </FormField>
 
-          <FormField
-            label="Sale Price"
-            hint="Leave empty if there's no sale."
-            error={errors.salePrice}
-          >
-            <div className="relative">
-              <span className="absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400 pointer-events-none select-none">
-                {CURRENCY.symbol}
-              </span>
-              <input
-                type="number"
-                min="0"
-                step="0.01"
-                value={form.salePrice}
-                onChange={(e) => setField('salePrice', e.target.value)}
-                placeholder="0.00"
-                disabled={isDisabled}
-                className={`${inputCls(!!errors.salePrice)} pl-7`}
-              />
-            </div>
-          </FormField>
-        </div>
-      </FormSection>
+            <FormField
+              label="Sale Price"
+              hint="Leave empty if there's no sale."
+              error={errors.salePrice}
+            >
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center text-sm text-neutral-400 pointer-events-none select-none">
+                  {CURRENCY.symbol}
+                </span>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={form.salePrice}
+                  onChange={(e) => setField('salePrice', e.target.value)}
+                  placeholder="0.00"
+                  disabled={isDisabled}
+                  className={`${inputCls(!!errors.salePrice)} pl-7`}
+                />
+              </div>
+            </FormField>
+          </div>
+        </FormSection>
+      )}
 
       {/* ── Inventory ── */}
       <FormSection title="Inventory">
@@ -456,8 +483,19 @@ export function ProductForm({ categories }: ProductFormProps) {
           value={form.attributes}
           onChange={(attrs) => setField('attributes', attrs)}
           disabled={isDisabled}
+          showVariationToggle={form.productType === 'variable'}
         />
       </FormSection>
+
+      {/* ── Variations (variable products only) ── */}
+      {form.productType === 'variable' && (
+        <FormSection title="Variations" description="Set individual pricing for each size/option combination. Save the product first, then edit to save variations.">
+          <VariationManager
+            attributes={form.attributes}
+            disabled={isDisabled}
+          />
+        </FormSection>
+      )}
 
       {/* ── Description ── */}
       <FormSection title="Description">
