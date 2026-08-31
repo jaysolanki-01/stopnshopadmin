@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Suspense } from 'react';
 import { getProductsWithMeta } from '@/lib/woocommerce/products';
+import { getCategories } from '@/lib/woocommerce/categories';
 import { StatusBadge } from '@/components/products/StatusBadge';
 import { ProductSearch } from '@/components/products/ProductSearch';
 import { Pagination } from '@/components/products/Pagination';
@@ -25,6 +26,7 @@ async function ProductList({ searchParams }: PageProps) {
   const page = Math.max(1, parseInt(params.page ?? '1', 10));
   const search = params.search ?? '';
   const status = params.status ?? '';
+  const category = params.category ?? '';
 
   let products: WCProduct[] = [];
   let total = 0;
@@ -37,6 +39,7 @@ async function ProductList({ searchParams }: PageProps) {
       per_page: PAGINATION.defaultPerPage,
       search: search || undefined,
       status: status || undefined,
+      category: category || undefined,
     }));
   } catch {
     error = 'Unable to load products. Please check your WooCommerce connection and try again.';
@@ -203,6 +206,14 @@ function ProductRow({ product }: { product: WCProduct }) {
 export default async function ProductsPage({ searchParams }: PageProps) {
   const params = await searchParams;
 
+  let categories: { id: number; name: string }[] = [];
+  try {
+    const cats = await getCategories();
+    categories = cats.map((c) => ({ id: c.id, name: c.name }));
+  } catch {
+    // non-fatal — category filter just won't show
+  }
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 max-w-7xl mx-auto animate-fade-in">
       {/* Header */}
@@ -229,6 +240,8 @@ export default async function ProductsPage({ searchParams }: PageProps) {
           <ProductSearch
             defaultSearch={params.search ?? ''}
             defaultStatus={params.status ?? ''}
+            defaultCategory={params.category ?? ''}
+            categories={categories}
           />
         </Suspense>
       </div>

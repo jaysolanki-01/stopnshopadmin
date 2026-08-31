@@ -10,12 +10,19 @@ const STATUS_OPTIONS = [
   { value: 'pending', label: 'Pending' },
 ];
 
+interface CategoryOption {
+  id: number;
+  name: string;
+}
+
 interface ProductSearchProps {
   defaultSearch?: string;
   defaultStatus?: string;
+  defaultCategory?: string;
+  categories?: CategoryOption[];
 }
 
-export function ProductSearch({ defaultSearch = '', defaultStatus = '' }: ProductSearchProps) {
+export function ProductSearch({ defaultSearch = '', defaultStatus = '', defaultCategory = '', categories = [] }: ProductSearchProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -44,6 +51,10 @@ export function ProductSearch({ defaultSearch = '', defaultStatus = '' }: Produc
 
   const handleStatusChange = (value: string) => {
     updateParam('status', value);
+  };
+
+  const handleCategoryChange = (value: string) => {
+    updateParam('category', value);
   };
 
   return (
@@ -83,6 +94,29 @@ export function ProductSearch({ defaultSearch = '', defaultStatus = '' }: Produc
           </svg>
         </div>
       </div>
+
+      {/* Category filter */}
+      {categories.length > 0 && (
+        <div className="relative">
+          <select
+            defaultValue={defaultCategory}
+            onChange={(e) => handleCategoryChange(e.target.value)}
+            className="appearance-none pl-3 pr-8 py-2.5 text-sm bg-white border border-neutral-200 rounded-lg text-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-900 focus:border-transparent transition cursor-pointer"
+          >
+            <option value="">All Categories</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={String(cat.id)}>
+                {cat.name}
+              </option>
+            ))}
+          </select>
+          <div className="absolute inset-y-0 right-2.5 flex items-center pointer-events-none text-neutral-400">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
